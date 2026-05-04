@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Usuario</title>
+  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+
+<h2>📍 Transporte en camino</h2>
+<p id="info">Calculando distancia...</p>
+
+<button onclick="volver()">Volver</button>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+function volver() {
+  window.location.href = "index.html";
+}
+
+var map = L.map('map').setView([22.1565, -100.9855], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+var markerTransporte = L.marker([22.1565, -100.9855]).addTo(map);
+var markerUsuario;
+
+var userLat, userLng;
+
+// Obtener ubicación del usuario
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+
+    markerUsuario = L.marker([userLat, userLng]).addTo(map)
+      .bindPopup("Tú estás aquí")
+      .openPopup();
+  });
+}
+
+// Calcular distancia
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+// Actualizar transporte
+setInterval(() => {
+  fetch('http://localhost:3000/ubicacion')
+    .then(res => res.json())
+    .then(data => {
+
+      markerTransporte.setLatLng([data.lat, data.lng]);
+      map.setView([data.lat, data.lng]);
+
+      if (userLat && userLng) {
+        let distancia = calcularDistancia(
+          userLat, userLng,
+          data.lat, data.lng
+        );
+
+        document.getElementById("info").innerHTML =
+          "Distancia: " + distancia.toFixed(2) + " km";
+
+        if (distancia < 0.5) {
+          document.getElementById("info").innerHTML += "<br>🚐 Ya casi llega";
+        }
+      }
+
+    });
+}, 3000);
+</script>
+
+</body>
+</html>

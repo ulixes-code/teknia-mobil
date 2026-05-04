@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chofer</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<h2>🚗 Modo Chofer</h2>
+<p id="estado">Iniciando...</p>
+
+<button onclick="volver()">Volver</button>
+
+<script>
+function volver() {
+  window.location.href = "index.html";
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.watchPosition(function(pos) {
+
+    fetch('http://localhost:3000/ubicacion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      })
+    });
+
+    document.getElementById("estado").innerHTML =
+      "Enviando: " + pos.coords.latitude + ", " + pos.coords.longitude;
+
+  });
+} else {
+  document.getElementById("estado").innerHTML =
+    "Geolocalización no soportada";
+}
+</script>
+
+</body>
+</html>
