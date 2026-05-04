@@ -7,10 +7,12 @@
 </head>
 <body>
 
-<h2>📍 Transporte en camino</h2>
-<p id="info">Calculando distancia...</p>
+<div class="card">
+  <h2>📍 Transporte en camino</h2>
+  <p id="info">Calculando distancia...</p>
 
-<button onclick="volver()">Volver</button>
+  <button onclick="volver()">⬅ Volver</button>
+</div>
 
 <div id="map"></div>
 
@@ -68,6 +70,8 @@ setInterval(() => {
     .then(res => res.json())
     .then(data => {
 
+      if (!data.lat || !data.lng) return;
+
       // Primera vez
       if (lastLat === null) {
         lastLat = data.lat;
@@ -95,7 +99,7 @@ setInterval(() => {
         }
       }, 100);
 
-      // Calcular distancia
+      // Distancia
       if (userLat && userLng) {
         let distancia = calcularDistancia(
           userLat, userLng,
@@ -103,7 +107,7 @@ setInterval(() => {
         );
 
         document.getElementById("info").innerHTML =
-          "Distancia: " + distancia.toFixed(2) + " km";
+          "📏 Distancia: " + distancia.toFixed(2) + " km";
 
         if (distancia < 0.5) {
           document.getElementById("info").innerHTML += "<br>🚐 Ya casi llega";
@@ -112,23 +116,6 @@ setInterval(() => {
 
     });
 }, 5000);
-
-      if (userLat && userLng) {
-        let distancia = calcularDistancia(
-          userLat, userLng,
-          data.lat, data.lng
-        );
-
-        document.getElementById("info").innerHTML =
-          "Distancia: " + distancia.toFixed(2) + " km";
-
-        if (distancia < 0.5) {
-          document.getElementById("info").innerHTML += "<br>🚐 Ya casi llega";
-        }
-      }
-
-    });
-}, 3000);
 </script>
 
 </body>
