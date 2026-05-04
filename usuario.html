@@ -59,14 +59,59 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// Actualizar transporte
+let lastLat = null;
+let lastLng = null;
+
+// Actualizar transporte con animación suave
 setInterval(() => {
   fetch('http://localhost:3000/ubicacion')
     .then(res => res.json())
     .then(data => {
 
-      markerTransporte.setLatLng([data.lat, data.lng]);
-      map.setView([data.lat, data.lng]);
+      // Primera vez
+      if (lastLat === null) {
+        lastLat = data.lat;
+        lastLng = data.lng;
+        markerTransporte.setLatLng([data.lat, data.lng]);
+        return;
+      }
+
+      let steps = 20;
+      let i = 0;
+
+      let deltaLat = (data.lat - lastLat) / steps;
+      let deltaLng = (data.lng - lastLng) / steps;
+
+      let animacion = setInterval(() => {
+        lastLat += deltaLat;
+        lastLng += deltaLng;
+
+        markerTransporte.setLatLng([lastLat, lastLng]);
+        map.setView([lastLat, lastLng]);
+
+        i++;
+        if (i >= steps) {
+          clearInterval(animacion);
+        }
+      }, 100);
+
+      // Calcular distancia
+      if (userLat && userLng) {
+        let distancia = calcularDistancia(
+          userLat, userLng,
+          data.lat, data.lng
+        );
+
+        document.getElementById("info").innerHTML =
+          "Distancia: " + distancia.toFixed(2) + " km";
+
+        if (distancia < 0.5) {
+          document.getElementById("info").innerHTML += "<br>🚐 Ya casi llega";
+        }
+      }
+
+    });
+}, 5000);
 
       if (userLat && userLng) {
         let distancia = calcularDistancia(
