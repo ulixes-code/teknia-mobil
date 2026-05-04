@@ -6,10 +6,13 @@
 </head>
 <body>
 
-<h2>🚗 Modo Chofer</h2>
-<p id="estado">Iniciando...</p>
+<div class="card">
+  <h2>🚗 Modo Chofer</h2>
+  
+  <p id="estado">Iniciando recorrido...</p>
 
-<button onclick="volver()">Volver</button>
+  <button onclick="volver()">⬅ Volver</button>
+</div>
 
 <script>
 function volver() {
@@ -31,12 +34,17 @@ if (navigator.geolocation) {
     });
 
     document.getElementById("estado").innerHTML =
-      "Enviando: " + pos.coords.latitude + ", " + pos.coords.longitude;
+      "📡 Enviando ubicación:<br>" +
+      pos.coords.latitude.toFixed(6) + ", " +
+      pos.coords.longitude.toFixed(6);
 
+  }, (error) => {
+    document.getElementById("estado").innerHTML =
+      "❌ Error obteniendo ubicación";
   });
 } else {
   document.getElementById("estado").innerHTML =
-    "Geolocalización no soportada";
+    "🚫 Geolocalización no soportada";
 }
 </script>
 
